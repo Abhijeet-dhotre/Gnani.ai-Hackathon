@@ -95,11 +95,12 @@ Real end-to-end check: hold the robot button, say in Hinglish
 
 ## Honest limits
 
-- **Not tested live with real Gnani keys yet.** The Gnani calls were verified
-  against the real installed `gnani-vachana` package (signatures, voices,
-  `transcribe_bytes` → `transcript`, `synthesize_stream` → raw PCM), and the
-  pipeline passes in mock mode — but your first real-key run is still the
-  test. Run `/test-tts` first, then one `/upload` from the robot.
+- **Tested live with real Gnani keys (Nov 8, 2026).** Prisma v2.5 STT
+  transcribed "namaste kaisi ho" in 466–655 ms, Timbre v2.5 (voice Nalini)
+  returned a valid 24 kHz WAV playing 1.6 s, and a full `/upload` run took
+  2.4 s end-to-end (LLM first token 255 ms). Conversations save with
+  emotion, and the parent report works. Mock mode still passes too:
+  `MOCK_GNANI=1 python test_pipeline.py` → `ALL TESTS PASSED`.
 - Prisma v2.5 is the default model (omit `model=`). `prisma-v3.0` exists but
   is opt-in and not needed here.
 - Evon v3.3 is **optional, via local vLLM** — it is not on the Gnani API
