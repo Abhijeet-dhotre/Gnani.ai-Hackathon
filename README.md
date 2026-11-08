@@ -3,28 +3,26 @@
 For the Great Indian AI Internship Challenge (Gnani AI).
 Deadline: **Nov 10, 2026, 11:59 PM IST.**
 
-A drop-in replacement for `server.py` in
-[AI-Chat-Robot-for-Children](https://github.com/Abhijeet-dhotre/AI-Chat-Robot-for-Children),
-swapped from Whisper + Edge TTS to Gnani, and made fast.
+A low-latency voice pipeline for the SafeToy robot — Gnani Prisma STT,
+Groq/Evon LLM, and Gnani Timbre TTS streaming in a single Flask process.
 
-## What changed
+## Pipeline at a glance
 
-| Step | Before (original repo) | Now (this pipeline) |
-|---|---|---|
-| STT | Whisper via Groq, `language="en"` | **Prisma v2.5** via `gnani-vachana`, `en-IN` (Hinglish), retry `hi-IN` |
-| LLM | llama-3.3-70b, `stream=False`, 1024 tokens | **Evon v3.3 first when available, Groq llama-3.1-8b-instant as automatic fallback** — `LLM_PROVIDER=groq \| evon \| auto`, `stream=True`, 120 tokens, 2–3 short sentences, thinking off for Evon |
-| TTS | Edge TTS on localhost:8000 + ffmpeg to 24kHz | **Timbre v2.5, voice Nalini, SSE streaming**, 24kHz PCM direct, no ffmpeg |
-| Emotion | Local BERT (torch) — blocks the reply | Fast keyword heuristic in a **parallel thread, never blocks** |
-| Audio I/O | Save wav to disk, read it back, ESP32 does a 2nd GET | **In-memory bytes only**; one WAV file saved for the ESP32 GET |
+| Step | Implementation |
+|---|---|
+| STT | **Prisma v2.5** via `gnani-vachana`, `en-IN` (Hinglish), retry `hi-IN` |
+| LLM | **Evon v3.3 first when available, Groq as automatic fallback** — `LLM_PROVIDER=groq \| evon \| auto`, `stream=True`, 120 tokens, 2–3 short sentences, thinking off for Evon |
+| TTS | **Timbre v2.5, voice Nalini, SSE streaming**, 24kHz PCM direct, no ffmpeg |
+| Emotion | Fast keyword heuristic in a **parallel thread, never blocks** |
+| Audio I/O | **In-memory bytes only**; one WAV file saved for the ESP32 GET |
 
-No second `tts_server.py` needed. One process, one port: **5050**.
+One process, one port: **5050**.
 
 ## Why it is faster
 
-Old flow waits for everything to finish before starting the next step:
-save → full STT → full LLM → emotion → full TTS → ffmpeg → play. ~3–5 s silence.
+Running each step only after the previous one finishes adds ~3–5 s of
+silence. This pipeline overlaps the steps instead:
 
-New flow overlaps:
 - LLM **streams**. The moment sentence 1 ends (`...tha.`), it goes to Timbre
   SSE immediately, while sentence 2 is still generating.
 - Timbre **streams** PCM per sentence (`GnaniTTSStreamClient.synthesize_stream`).
@@ -42,13 +40,13 @@ Gnani numbers behind this: STT P95 ~200 ms, Timbre sub-250 ms p95. The socket
 itself only saves ~50–100 ms per request — the model time dominates, and
 streaming is what cuts it.
 
-## ESP32 — no firmware change
+## ESP32 firmware
 
-`POST /upload` takes the same multipart `audio` field and returns the same
-JSON keys your `.ino` already parses: `text`, `ai_response`, `emotion`,
-`has_audio`, `audio_url`. Keep your working wiring exactly as-is.
+`POST /upload` takes a multipart `audio` field and returns the JSON keys
+the `.ino` parses: `text`, `ai_response`, `emotion`, `has_audio`,
+`audio_url`. Wiring diagram and parts list: `README_original.md`.
 
-Only change in `esp32_robot/esp32_robot.ino`:
+Set your PC's IP in `esp32_robot/esp32_robot.ino`:
 ```cpp
 String server_url = "http://YOUR_PC_IP:5050";  // e.g. http://192.168.1.5:5050
 ```
@@ -58,7 +56,8 @@ Find your PC IP with `ipconfig` (Windows) and use the same Wi-Fi as the robot.
 
 1. Register at gnani.ai/internship, get your key at **app.gnani.ai/voice**
    (5,000 programme credits). Get a Groq key if you don't have one.
-2. Copy this folder to your PC (or `git clone` your repo and replace `server.py`).
+2. Clone this repo to your PC:
+   `git clone https://github.com/Abhijeet-dhotre/Gnani.ai-Hackathon.git`
 3. `copy .env.example .env` — paste `GNANI_API_KEY` and `GROQ_API_KEY`.
 4. `pip install -r requirements.txt`
 5. `python server.py` — or double-click `run_server.bat` on Windows.
@@ -86,10 +85,12 @@ Real end-to-end check: hold the robot button, say in Hinglish
 ## Files
 
 - `server.py` — the whole pipeline. Read the header comment first.
+- `esp32_robot/` — ESP32-S3 firmware: `esp32_robot.ino`, `RoboEyesSimple.h`, `mic_test/`.
 - `EVON_SETUP.md` — how to run Evon v3.3 with vLLM, and how to prove it.
 - `requirements.txt` — Flask, Groq, OpenAI client (for Evon via vLLM), gnani-vachana, dotenv. No torch, no ffmpeg.
 - `test_pipeline.py` — mock-mode contract test.
-- `templates/` — copied from the original repo (`/`, `/report` still work).
+- `templates/` — conversation history (`/`) and report (`/report`) pages.
+- `README_original.md` — hardware guide: parts list, wiring diagram, Arduino upload steps.
 - `.env.example`, `run_server.bat`
 
 ## Honest limits
@@ -109,9 +110,9 @@ Real end-to-end check: hold the robot button, say in Hinglish
   vLLM server is down. Check `/llm-test` — it reports `llm_provider_used`.
   If it says `groq`, Evon was down. Do not claim the demo ran on Evon if
   it ran on Groq. Default `LLM_PROVIDER=groq` is the safe demo setting.
-- Emotion is now a keyword heuristic, not the BERT model. It is fast and
-  good enough for OLED eyes (happy / sad / angry / scared / excited /
-  neutral). If the judges ask, say so plainly — don't claim the BERT ran.
-- The robot still waits for the full WAV before playing (your `.ino` does
-  a GET after the JSON). True play-while-generating would need a firmware
+- Emotion uses a fast keyword heuristic — good enough for OLED eyes
+  (happy / sad / angry / scared / excited / neutral). If the judges ask how
+  it works, describe the heuristic plainly.
+- The robot waits for the full WAV before playing (the `.ino` does a GET
+  after the JSON). True play-while-generating would need a firmware
   change to stream audio chunks — don't attempt that before the deadline.
