@@ -1,0 +1,11 @@
+flask>=3.0
+python-dotenv>=1.0
+groq>=0.20
+openai>=1.0
+requests>=2.31
+gnani-vachana>=0.9.0
+# NOTE: no torch / transformers / edge-tts / ffmpeg needed on the robot server.
+# Evon itself runs in a SEPARATE vLLM server (see EVON_SETUP.md) — this server
+# only talks to it over HTTP at EVON_BASE_URL, like any OpenAI-compatible API.
+# Emotion is a fast keyword heuristic (see server.py). That is deliberate:
+# the old local BERT added seconds of startup and ~200 ms per turn.

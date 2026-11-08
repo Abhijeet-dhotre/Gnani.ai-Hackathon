@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Child Development Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent: #FFE66D;
+            --purple: #A66CFF;
+            --pink: #FF9ED2;
+            --blue: #6EB5FF;
+            --green: #7BD389;
+            --orange: #FFAB6B;
+            --dark: #2D3436;
+            --light: #FFFFFF;
+            --bg: #F0F4F8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: var(--bg);
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(255,107,107,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(78,205,196,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(166,108,255,0.08) 0%, transparent 40%);
+            color: var(--dark);
+            min-height: 100vh;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 50px;
+            background: var(--light);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            font-size: 0.95rem;
+            font-weight: 700;
+            font-family: 'Nunito', sans-serif;
+            color: var(--dark);
+            text-decoration: none;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+        }
+
+        .report-card {
+            background: var(--light);
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .report-header {
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            padding: 50px 40px;
+            text-align: center;
+        }
+
+        .report-header h1 {
+            font-size: 2rem;
+            color: var(--light);
+            margin-bottom: 8px;
+            font-weight: 800;
+        }
+
+        .report-header p {
+            color: rgba(255,255,255,0.9);
+            font-size: 1rem;
+        }
+
+        .report-body {
+            padding: 40px;
+        }
+
+        .report-section {
+            background: var(--bg);
+            border-radius: 25px;
+            padding: 30px;
+            margin-bottom: 25px;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .report-section:hover {
+            border-color: var(--secondary);
+            transform: scale(1.02);
+        }
+
+        .report-section:nth-child(1):hover { border-color: var(--primary); }
+        .report-section:nth-child(2):hover { border-color: var(--secondary); }
+        .report-section:nth-child(3):hover { border-color: var(--accent); }
+        .report-section:nth-child(4):hover { border-color: var(--pink); }
+        .report-section:nth-child(5):hover { border-color: var(--green); }
+        .report-section:nth-child(6):hover { border-color: var(--purple); }
+
+        .section-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            margin-right: 15px;
+            vertical-align: middle;
+        }
+
+        .report-section:nth-child(1) .section-icon { background: linear-gradient(135deg, #ff7675, #ff6b6b); }
+        .report-section:nth-child(2) .section-icon { background: linear-gradient(135deg, #74b9ff, #0984e3); }
+        .report-section:nth-child(3) .section-icon { background: linear-gradient(135deg, #55efc4, #00b894); }
+        .report-section:nth-child(4) .section-icon { background: linear-gradient(135deg, #fd79a8, #e84393); }
+        .report-section:nth-child(5) .section-icon { background: linear-gradient(135deg, #a29bfe, #6c5ce7); }
+        .report-section:nth-child(6) .section-icon { background: linear-gradient(135deg, #ffeaa7, #fdcb6e); }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--dark);
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .section-content {
+            font-size: 0.95rem;
+            color: var(--dark);
+            line-height: 1.8;
+            padding-left: 65px;
+        }
+
+        .section-content p {
+            margin-bottom: 14px;
+        }
+
+        .section-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-content ul {
+            margin: 12px 0 15px 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .section-content li {
+            margin-bottom: 10px;
+            padding: 10px 15px;
+            background: var(--light);
+            border-radius: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .section-content li::before {
+            content: '✨';
+            margin-right: 10px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+        }
+
+        .loading-text {
+            font-size: 1rem;
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+        .spinner {
+            width: 45px;
+            height: 45px;
+            margin: 0 auto;
+            border: 4px solid var(--bg);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.1);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+
+        .footer span {
+            font-size: 1.2rem;
+            margin: 0 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">🏠 Back to Chat</a>
+        
+        <div class="report-card">
+            <div class="report-header">
+                <h1>📋 Development Report</h1>
+                <p>Let's see how you're growing!</p>
+            </div>
+            
+            <div class="report-body" id="report-content">
+                <div class="loading">
+                    <div class="loading-text">Creating your special report...</div>
+                    <div class="spinner"></div>
+                </div>
+            </div>
+            
+            <div class="footer">
+                Made with <span>❤️</span> just for you!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadReport() {
+            try {
+                const res = await fetch('/api/report');
+                const data = await res.json();
+
+                if (data.report) {
+                    let text = data.report;
+                    let parts = text.split(/(Section Name:)/);
+                    let html = '';
+                    
+                    const icons = ['😊', '💭', '🌱', '⚠️', '💡', '📝'];
+                    
+                    for (let i = 1; i < parts.length; i += 2) {
+                        let title = parts[i+1].split(':')[0].trim();
+                        let content = parts[i+1].substring(title.length + 1).trim();
+                        
+                        html += '<div class="report-section">';
+                        html += '<div class="section-title"><span class="section-icon">' + icons[Math.floor((i-1)/2) % icons.length] + '</span>' + title + '</div>';
+                        html += '<div class="section-content">';
+                        
+                        let paragraphs = content.split(/\n\n+/);
+                        for (let p of paragraphs) {
+                            p = p.trim();
+                            if (!p) continue;
+                            
+                            if (p.startsWith('- ')) {
+                                let items = p.split('\n');
+                                html += '<ul>';
+                                for (let item of items) {
+                                    item = item.trim();
+                                    if (item) {
+                                        html += '<li>' + item.substring(2) + '</li>';
+                                    }
+                                }
+                                html += '</ul>';
+                            } else {
+                                html += '<p>' + p + '</p>';
+                            }
+                        }
+                        
+                        html += '</div></div>';
+                    }
+                    
+                    document.getElementById('report-content').innerHTML = html;
+                } else if (data.message) {
+                    document.getElementById('report-content').innerHTML = '<div class="loading"><p>' + data.message + '</p></div>';
+                }
+            } catch (e) {
+                document.getElementById('report-content').innerHTML = '<div class="loading"><p style="color:red;">Oops! Something went wrong: ' + e.message + '</p></div>';
+            }
+        }
+
+        loadReport();
+    </script>
+</body>
+</html>

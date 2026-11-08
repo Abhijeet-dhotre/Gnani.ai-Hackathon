@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversation History</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent: #FFE66D;
+            --purple: #A66CFF;
+            --pink: #FF9ED2;
+            --blue: #6EB5FF;
+            --green: #7BD389;
+            --orange: #FFAB6B;
+            --dark: #2D3436;
+            --light: #FFFFFF;
+            --bg: #F0F4F8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: var(--bg);
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(255,107,107,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(78,205,196,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(166,108,255,0.08) 0%, transparent 40%);
+            color: var(--dark);
+            min-height: 100vh;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #888;
+            font-size: 1rem;
+        }
+
+        .controls-card {
+            background: var(--light);
+            border-radius: 25px;
+            padding: 25px 30px;
+            margin-bottom: 25px;
+            box-shadow: 
+                0 10px 40px rgba(0,0,0,0.08),
+                inset 0 1px 0 rgba(255,255,255,0.8);
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 220px;
+            position: relative;
+        }
+
+        .search-box::before {
+            content: '🔍';
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 20px 15px 50px;
+            border: 3px solid transparent;
+            border-radius: 50px;
+            background: var(--bg);
+            font-size: 0.95rem;
+            font-family: 'Nunito', sans-serif;
+            color: var(--dark);
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: var(--secondary);
+            background: var(--light);
+            box-shadow: 0 5px 20px rgba(78,205,196,0.2);
+        }
+
+        .search-input::placeholder {
+            color: #aaa;
+        }
+
+        select {
+            padding: 15px 20px;
+            border: 3px solid transparent;
+            border-radius: 50px;
+            background: var(--bg);
+            font-size: 0.9rem;
+            font-family: 'Nunito', sans-serif;
+            color: var(--dark);
+            cursor: pointer;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        select:focus {
+            border-color: var(--purple);
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            font-family: 'Nunito', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-refresh {
+            background: var(--secondary);
+            color: var(--light);
+            box-shadow: 0 5px 15px rgba(78,205,196,0.4);
+        }
+
+        .btn-refresh:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(78,205,196,0.5);
+        }
+
+        .btn-export {
+            background: var(--accent);
+            color: var(--dark);
+            box-shadow: 0 5px 15px rgba(255,230,109,0.4);
+        }
+
+        .btn-export:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255,230,109,0.5);
+        }
+
+        .btn-recompute {
+            background: var(--pink);
+            color: var(--dark);
+            box-shadow: 0 5px 15px rgba(255,158,210,0.4);
+        }
+
+        .btn-recompute:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255,158,210,0.5);
+        }
+
+        .btn-report {
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            color: var(--light);
+            box-shadow: 0 5px 20px rgba(255,107,107,0.4);
+        }
+
+        .btn-report:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(255,107,107,0.5);
+        }
+
+        .btn-clear {
+            background: linear-gradient(135deg, #ff7675, #d63031);
+            color: white;
+            box-shadow: 0 5px 15px rgba(214,48,49,0.4);
+        }
+
+        .btn-clear:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(214,48,49,0.5);
+        }
+
+        .table-card {
+            background: var(--light);
+            border-radius: 25px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.08);
+            padding: 25px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+        }
+
+        th {
+            text-align: left;
+            padding: 15px 20px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #999;
+            font-weight: 700;
+        }
+
+        td {
+            padding: 18px 20px;
+            background: var(--bg);
+            font-size: 0.9rem;
+        }
+
+        tr td:first-child {
+            border-radius: 18px 0 0 18px;
+        }
+
+        tr td:last-child {
+            border-radius: 0 18px 18px 0;
+        }
+
+        tr {
+            transition: all 0.3s ease;
+        }
+
+        tr:hover td {
+            transform: scale(1.01);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .id-badge {
+            display: inline-block;
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 35px;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .timestamp {
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        .msg {
+            max-width: 280px;
+            line-height: 1.5;
+        }
+
+        .user-msg {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .ai-msg {
+            color: var(--dark);
+        }
+
+        .emotion-emoji {
+            font-size: 1.3rem;
+            margin-right: 6px;
+        }
+
+        .emotion-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: capitalize;
+        }
+
+        .emotion-happy { background: linear-gradient(135deg, #FFE66D, #FFD93D); color: #8B7000; }
+        .emotion-sad { background: linear-gradient(135deg, #74b9ff, #0984e3); color: white; }
+        .emotion-angry { background: linear-gradient(135deg, #ff7675, #d63031); color: white; }
+        .emotion-scared { background: linear-gradient(135deg, #a29bfe, #6c5ce7); color: white; }
+        .emotion-neutral { background: linear-gradient(135deg, #dfe6e9, #b2bec3); color: #636e72; }
+        .emotion-confused { background: linear-gradient(135deg, #81ecec, #00cec9); color: #006266; }
+        .emotion-excited { background: linear-gradient(135deg, #ff9ff3, #f368e0); color: white; }
+        .emotion-love { background: linear-gradient(135deg, #ff9ff3, #f368e0); color: white; }
+
+        .btn-delete {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #ff7675, #d63031);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 700;
+            font-family: 'Nunito', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-delete:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(214,48,49,0.4);
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: var(--purple);
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 0;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        .toggle-btn:hover {
+            color: var(--primary);
+        }
+
+        .full-text {
+            display: none;
+            background: var(--light);
+            padding: 12px;
+            border-radius: 12px;
+            margin-top: 8px;
+            font-size: 0.85rem;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .empty {
+            text-align: center;
+            padding: 60px;
+            color: #aaa;
+            font-size: 1.1rem;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .controls-card {
+                flex-direction: column;
+            }
+            
+            .search-box {
+                width: 100%;
+            }
+            
+            .action-btns {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .btn {
+                flex: 1;
+                min-width: 120px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Conversation History</h1>
+            <p>Chat with your AI friend</p>
+        </div>
+
+        <div class="controls-card">
+            <div class="search-box">
+                <input type="text" class="search-input" id="search" placeholder="Search conversations...">
+            </div>
+            <select id="limit">
+                <option value="25">Last 25</option>
+                <option value="50" selected>Last 50</option>
+                <option value="100">Last 100</option>
+                <option value="0">All</option>
+            </select>
+            <div class="action-btns">
+                <button class="btn btn-refresh" onclick="loadData()">🔄 Refresh</button>
+                <button class="btn btn-export" onclick="exportCSV()">📥 Export</button>
+                <button class="btn btn-recompute" onclick="recomputeEmotions()">🎭 Recompute</button>
+                <button class="btn btn-clear" onclick="clearAll()">🗑️ Clear All</button>
+                <a href="/report" class="btn btn-report">📊 View Report</a>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Time</th>
+                        <th>You Said</th>
+                        <th>Feeling</th>
+                        <th>AI Response</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+            </table>
+            <div class="empty" id="empty" style="display:none">
+                <div class="empty-icon">🤗</div>
+                <p>No conversations yet! Say hello to start chatting.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const EMOJI_MAP = {
+            'happy': '😊', 'sad': '😢', 'angry': '😠', 'scared': '😨',
+            'neutral': '😐', 'confused': '😕', 'excited': '🤩'
+        };
+
+        let allData = [];
+
+        async function loadData() {
+            const limit = document.getElementById('limit').value;
+            const url = limit === '0' ? '/conversations' : `/conversations?limit=${limit}`;
+            const res = await fetch(url);
+            allData = await res.json();
+            render(allData);
+        }
+
+        function render(data) {
+            const tbody = document.getElementById('tbody');
+            const empty = document.getElementById('empty');
+            if (data.length === 0) {
+                tbody.innerHTML = '';
+                empty.style.display = 'block';
+                return;
+            }
+            empty.style.display = 'none';
+            
+            tbody.innerHTML = data.map(r => {
+                const ts = r.timestamp;
+                const formatted = ts.replace(/(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/, '$1-$2-$3 $4:$5:$6');
+                const userShort = r.user_message.length > 50 ? r.user_message.slice(0, 50) + '...' : r.user_message;
+                const aiShort = r.ai_response.length > 70 ? r.ai_response.slice(0, 70) + '...' : r.ai_response;
+                const emotionEmoji = EMOJI_MAP[r.emotion] || '😐';
+                
+                return `<tr>
+                    <td><span class="id-badge">${r.id}</span></td>
+                    <td class="timestamp">${formatted}</td>
+                    <td class="msg user-msg">
+                        <div>${esc(userShort)}</div>
+                        <div class="full-text" id="user-${r.id}">${esc(r.user_message)}</div>
+                        ${r.user_message.length > 50 ? `<button class="toggle-btn" onclick="toggle('user-${r.id}', this)">Show more</button>` : ''}
+                    </td>
+                    <td><span class="emotion-badge emotion-${r.emotion || 'neutral'}"><span class="emotion-emoji">${emotionEmoji}</span>${r.emotion || 'neutral'}</span></td>
+                    <td class="msg ai-msg">
+                        <div>${esc(aiShort)}</div>
+                        <div class="full-text" id="ai-${r.id}">${esc(r.ai_response)}</div>
+                        ${r.ai_response.length > 70 ? `<button class="toggle-btn" onclick="toggle('ai-${r.id}', this)">Show more</button>` : ''}
+                    </td>
+                    <td><button class="btn-delete" onclick="deleteRow(${r.id})">🗑️</button></td>
+                </tr>`;
+            }).join('');
+        }
+
+        function esc(text) {
+            const d = document.createElement('div');
+            d.textContent = text;
+            return d.innerHTML;
+        }
+
+        function toggle(id, btn) {
+            const el = document.getElementById(id);
+            const prev = el.previousElementSibling;
+            if (el.style.display === 'block') {
+                el.style.display = 'none';
+                prev.style.display = 'block';
+                btn.textContent = 'Show more';
+            } else {
+                el.style.display = 'block';
+                prev.style.display = 'none';
+                btn.textContent = 'Show less';
+            }
+        }
+
+        document.getElementById('search').addEventListener('input', function() {
+            const q = this.value.toLowerCase();
+            if (!q) { render(allData); return; }
+            const filtered = allData.filter(r =>
+                r.user_message.toLowerCase().includes(q) ||
+                r.ai_response.toLowerCase().includes(q)
+            );
+            render(filtered);
+        });
+
+        async function deleteRow(id) {
+            if (!confirm('Delete this conversation?')) return;
+            await fetch(`/conversations/${id}`, { method: 'DELETE' });
+            loadData();
+        }
+
+        function exportCSV() {
+            const rows = [['ID', 'Timestamp', 'User Message', 'Emotion', 'AI Response']];
+            allData.forEach(r => rows.push([r.id, r.timestamp, `"${r.user_message.replace(/"/g, '""')}"`, r.emotion, `"${r.ai_response.replace(/"/g, '""')}"`]));
+            const csv = rows.map(r => r.join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'conversations.csv';
+            a.click();
+        }
+
+        async function recomputeEmotions() {
+            if (!confirm('Recompute emotions for all?')) return;
+            const btn = document.querySelector('.btn-recompute');
+            btn.textContent = '⏳ Computing...';
+            const res = await fetch('/conversations/recompute', { method: 'POST' });
+            const result = await res.json();
+            btn.textContent = '🎭 Recompute';
+            alert(`Updated ${result.updated} conversations! ✨`);
+            loadData();
+        }
+
+        async function clearAll() {
+            if (!confirm('Are you sure you want to delete ALL conversations? This cannot be undone!')) return;
+            const res = await fetch('/conversations/clear', { method: 'POST' });
+            if (res.ok) {
+                alert('All conversations cleared!');
+                loadData();
+            }
+        }
+
+        loadData();
+    </script>
+</body>
+</html>

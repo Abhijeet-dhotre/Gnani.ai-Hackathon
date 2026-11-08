@@ -1,0 +1,55 @@
+# API Keys
+.env
+*.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Database
+*.db
+*.sqlite
+
+# Audio files
+mic_input/
+audio_responses/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cache
+.ruff_cache/
+.pytest_cache/
+
+# Models (if not needed)
+*.pkl
+*.joblib
+*.safetensors
+
+# Test outputs
+reply.wav
+reply2.wav
+test_tts_out.wav
+upload_result.json
