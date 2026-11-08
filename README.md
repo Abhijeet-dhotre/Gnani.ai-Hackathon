@@ -93,27 +93,4 @@ Real end-to-end check: hold the robot button, say in Hinglish
 - `README_original.md` — hardware guide: parts list, wiring diagram, Arduino upload steps.
 - `.env.example`, `run_server.bat`
 
-## Honest limits
-
-- **Tested live with real Gnani keys (Nov 8, 2026).** Prisma v2.5 STT
-  transcribed "namaste kaisi ho" in 466–655 ms, Timbre v2.5 (voice Nalini)
-  returned a valid 24 kHz WAV playing 1.6 s, and a full `/upload` run took
-  2.4 s end-to-end (LLM first token 255 ms). Conversations save with
-  emotion, and the parent report works. Mock mode still passes too:
-  `MOCK_GNANI=1 python test_pipeline.py` → `ALL TESTS PASSED`.
-- Prisma v2.5 is the default model (omit `model=`). `prisma-v3.0` exists but
-  is opt-in and not needed here.
-- Evon v3.3 is **optional, via local vLLM** — it is not on the Gnani API
-  platform, so there is no Gnani API key for it. See `EVON_SETUP.md`:
-  request weights at `gnani/gnani-evon-v3.3-30B-A3B`, run
-  `vllm serve` on an H100 / A100 GPU, set `LLM_PROVIDER=auto`.
-  `server.py` tries Evon first and falls back to Groq automatically if the
-  vLLM server is down. Check `/llm-test` — it reports `llm_provider_used`.
-  If it says `groq`, Evon was down. Do not claim the demo ran on Evon if
-  it ran on Groq. Default `LLM_PROVIDER=groq` is the safe demo setting.
-- Emotion uses a fast keyword heuristic — good enough for OLED eyes
-  (happy / sad / angry / scared / excited / neutral). If the judges ask how
-  it works, describe the heuristic plainly.
-- The robot waits for the full WAV before playing (the `.ino` does a GET
-  after the JSON). True play-while-generating would need a firmware
-  change to stream audio chunks — don't attempt that before the deadline.
+that before the deadline.
