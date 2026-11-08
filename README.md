@@ -1,3 +1,31 @@
+# SafeToy
+
+**Every question matters. Every language deserves to be understood.**
+
+An intelligent, screen-free AI voice companion for children • Powered by Gnani AI
+
+## The Problem
+
+Children ask a hundred questions a day — *Why is the sky blue? How do birds fly? Can we go to the moon?* — but busy parents and unavailable teachers mean many questions go unanswered, and curiosity fades. Most AI toys only make this worse: they are built for English-speaking children, while Indian children naturally speak Hindi, Hinglish, and regional languages.
+
+## Our Solution
+
+SafeToy is a screen-free voice companion that answers a child's questions in their own language, in a friendly, natural voice. No screen, no typing — just conversation. When a child asks, *“Chand pe hum kaise ja sakte hain?”*, SafeToy understands the Hinglish question and replies in simple Hindi, just as a patient friend would.
+
+**Powered by Gnani AI:** At its core are two Gnani AI technologies. **Prisma** understands the child's natural speech across Hindi, Hinglish, and mixed language use. **Timbre** turns the response into natural, human-like speech. Integrated into real hardware, SafeToy responds in **2.4 seconds in our live test** — fast enough to keep a child's curiosity alive. **Prisma understands the child, and Timbre gives that understanding a voice.**
+
+**Built for trust:** Making an AI that talks is easy; making one parents can trust is the real challenge. SafeToy uses **hardware-controlled listening** — the microphone activates only when the child presses the physical button. Both incoming questions and AI responses are checked for unsafe content, so every conversation stays age-appropriate and safe.
+
+**Emotion intelligence:** SafeToy goes beyond answering. We built our own emotion dataset of **28,287 examples across seven emotions**, and SafeToy reads a child's words for how they feel. If a child says, *“Mujhe darr lag raha hai,”* it picks up the fear and responds more gently, adapting to the child's emotional context.
+
+**For parents:** Parents get more than chat logs. Our parent dashboard provides insights into new words learned, topics of interest, learning patterns, and emotional expressions — so parents stay connected to what their child is curious about, learning, and feeling, without needing a screen in the child's hands.
+
+Together, Gnani AI's Prisma and Timbre, our custom safety framework, emotion intelligence, and parent dashboard make SafeToy more than an AI toy. The future of AI should not be limited by language, screens, or accessibility — **every child deserves technology that understands them.** SafeToy brings intelligent, trusted conversation closer to India's next generation.
+
+See the full pitch: [`SafeToy_Solution_Pitch.pdf`](SafeToy_Solution_Pitch.pdf)
+
+---
+
 # SafeToy AI — Low-Latency Gnani Pipeline
 
 For the Great Indian AI Internship Challenge (Gnani AI).
@@ -91,6 +119,30 @@ Real end-to-end check: hold the robot button, say in Hinglish
 - `test_pipeline.py` — mock-mode contract test.
 - `templates/` — conversation history (`/`) and report (`/report`) pages.
 - `README_original.md` — hardware guide: parts list, wiring diagram, Arduino upload steps.
+- `SafeToy_Solution_Pitch.pdf` — the pitch: problem, solution, Gnani AI, safety, emotion, parent dashboard.
 - `.env.example`, `run_server.bat`
 
-that before the deadline.
+## Honest limits
+
+- **Tested live with real Gnani keys (Nov 8, 2026).** Prisma v2.5 STT
+  transcribed "namaste kaisi ho" in 466–655 ms, Timbre v2.5 (voice Nalini)
+  returned a valid 24 kHz WAV playing 1.6 s, and a full `/upload` run took
+  2.4 s end-to-end (LLM first token 255 ms). Conversations save with
+  emotion, and the parent report works. Mock mode still passes too:
+  `MOCK_GNANI=1 python test_pipeline.py` → `ALL TESTS PASSED`.
+- Prisma v2.5 is the default model (omit `model=`). `prisma-v3.0` exists but
+  is opt-in and not needed here.
+- Evon v3.3 is **optional, via local vLLM** — it is not on the Gnani API
+  platform, so there is no Gnani API key for it. See `EVON_SETUP.md`:
+  request weights at `gnani/gnani-evon-v3.3-30B-A3B`, run
+  `vllm serve` on an H100 / A100 GPU, set `LLM_PROVIDER=auto`.
+  `server.py` tries Evon first and falls back to Groq automatically if the
+  vLLM server is down. Check `/llm-test` — it reports `llm_provider_used`.
+  If it says `groq`, Evon was down. Do not claim the demo ran on Evon if
+  it ran on Groq. Default `LLM_PROVIDER=groq` is the safe demo setting.
+- Emotion uses a fast keyword heuristic — good enough for OLED eyes
+  (happy / sad / angry / scared / excited / neutral). If the judges ask how
+  it works, describe the heuristic plainly.
+- The robot waits for the full WAV before playing (the `.ino` does a GET
+  after the JSON). True play-while-generating would need a firmware
+  change to stream audio chunks — don't attempt that before the deadline.
