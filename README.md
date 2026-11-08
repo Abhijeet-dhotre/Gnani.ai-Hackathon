@@ -28,6 +28,18 @@ See the full pitch: [`SafeToy_Solution_Pitch.pdf`](SafeToy_Solution_Pitch.pdf)
 
 ![SafeToy AI — hackathon pipeline](SafeToy_Hackathon_Diagram.png)
 
+## Features
+
+- **Speaks the child's language** — understands Hindi, Hinglish and mixed speech (Prisma v2.5, `en-IN`, with `hi-IN` retry) and replies in simple Hindi.
+- **Button-gated listening, never always-listening** — the mic (INMP441 on ESP32-S3) only activates when the child presses the physical button. Screen-free: no screen, no typing.
+- **Safety on both sides** — the question and the AI reply are both checked against unsafe-word and profanity lists (English + Hindi); an unsafe question gets a gentle safe Hindi fallback reply instead of an answer.
+- **Fast, natural voice** — Prisma v2.5 STT (466–655 ms live) → LLM → Timbre v2.5 TTS (voice Nalini, 24 kHz, SSE streaming). The LLM streams, and each finished sentence goes to TTS immediately, so a full answer arrives in 2.4 s in our live test.
+- **Short, kid-friendly answers** — 120 tokens, 2–3 short sentences. Evon v3.3 first when available (local vLLM), Groq as automatic fallback.
+- **Emotion-aware replies** — fast keyword-based emotion detection (happy, excited, sad, angry, scared, confused, neutral) runs in a parallel thread and never blocks the reply. We also built a 28,287-example, 7-emotion dataset for the emotion work.
+- **Parent dashboard, not raw logs** — conversations are saved, and `/report` shows new words learned, topics of interest, learning patterns and emotional expressions.
+- **Real hardware** — ESP32-S3 robot with OLED eyes, mic, amplifier (MAX98357A) and speaker. One Flask process on port 5050, in-memory audio only, no ffmpeg.
+- **Prove it yourself** — every `/upload` returns `timings_ms` (`stt_ms`, `llm_first_token_ms`, `llm_total_ms`, `tts_ms`, `total_ms`); mock mode (`MOCK_GNANI=1`) runs the full pipeline with no keys.
+
 ---
 
 # SafeToy AI — Low-Latency Gnani Pipeline
