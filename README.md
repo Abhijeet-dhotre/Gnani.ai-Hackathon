@@ -24,6 +24,10 @@ Together, Gnani AI's Prisma and Timbre, our custom safety framework, emotion int
 
 See the full pitch: [`SafeToy_Solution_Pitch.pdf`](SafeToy_Solution_Pitch.pdf)
 
+## Architecture
+
+![SafeToy AI — hackathon pipeline](SafeToy_Hackathon_Diagram.png)
+
 ---
 
 # SafeToy AI — Low-Latency Gnani Pipeline
@@ -120,6 +124,7 @@ Real end-to-end check: hold the robot button, say in Hinglish
 - `templates/` — conversation history (`/`) and report (`/report`) pages.
 - `README_original.md` — hardware guide: parts list, wiring diagram, Arduino upload steps.
 - `SafeToy_Solution_Pitch.pdf` — the pitch: problem, solution, Gnani AI, safety, emotion, parent dashboard.
+- `SafeToy_Hackathon_Diagram.png` — architecture diagram: button-gated mic → Prisma STT → Safety Checker → Evon/Groq LLM → Timbre TTS → speaker, with emotion, log, and parent report on both safe and unsafe paths.
 - `.env.example`, `run_server.bat`
 
 ## Honest limits
